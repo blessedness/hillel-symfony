@@ -16,7 +16,7 @@ services:
         env_file:
             - docker-compose.env
         build:
-            context: .
+            context: ./docker/php
         volumes:
             - ./:/app
         depends_on:
@@ -34,16 +34,16 @@ services:
         ports:
             - "3306:3306"
 
-    redis:
-        image: redis:alpine
-        ports:
-          - 6379:6379
+#    redis:
+#        image: redis:alpine
+#        ports:
+#          - 6379:6379
 
-    node:
-      image: node:alpine
-      volumes:
-          - ./:/app
-      tty: true
+#    node:
+#      image: node:alpine
+#      volumes:
+#          - ./:/app
+#      tty: true
 
 volumes:
   mysql:

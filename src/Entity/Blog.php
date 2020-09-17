@@ -25,9 +25,16 @@ class Blog
     private $title;
 
     /**
-     * @ORM\Column(type="string", nullable=true)
+     * @ORM\Column(type="text", nullable=true)
      */
     private $description;
+
+    /**
+     * @var User
+     * @ORM\ManyToOne(targetEntity="App\Entity\User", inversedBy="blogs")
+     * @ORM\JoinColumn(name="user_id", referencedColumnName="id", nullable=false, onDelete="CASCADE")
+     */
+    private $user;
 
     /**
      * @ORM\Column(type="datetime", nullable=false)
@@ -38,6 +45,12 @@ class Blog
      * @ORM\Column(type="datetime", nullable=false)
      */
     private $updated_at;
+
+    public function __construct()
+    {
+        $this->created_at = new \DateTimeImmutable();
+        $this->updated_at = new \DateTimeImmutable();
+    }
 
     public function getId(): ?int
     {
@@ -106,5 +119,21 @@ class Blog
     public function setDescription($description): void
     {
         $this->description = $description;
+    }
+
+    /**
+     * @return User
+     */
+    public function getUser(): User
+    {
+        return $this->user;
+    }
+
+    /**
+     * @param  User  $user
+     */
+    public function setUser(User $user): void
+    {
+        $this->user = $user;
     }
 }

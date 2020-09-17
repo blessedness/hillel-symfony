@@ -36,6 +36,11 @@ class User implements UserInterface
      */
     private $password;
 
+    /**
+     * @ORM\OneToMany(targetEntity="App\Entity\Blog", mappedBy="user", orphanRemoval=true, cascade={"persist"})
+     */
+    private $blogs;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -112,5 +117,21 @@ class User implements UserInterface
     {
         // If you store any temporary, sensitive data on the user, clear it here
         // $this->plainPassword = null;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getBlogs()
+    {
+        return $this->blogs;
+    }
+
+    /**
+     * @param  mixed  $blogs
+     */
+    public function setBlogs($blogs): void
+    {
+        $this->blogs = $blogs;
     }
 }

@@ -19,6 +19,12 @@ class BlogRepository extends ServiceEntityRepository
         parent::__construct($registry, Blog::class);
     }
 
+    public function getAllQuery()
+    {
+        return $this->createQueryBuilder('b')
+            ->getQuery();
+    }
+
     /**
      * @return Blog[] Returns an array of Blog objects
      */

@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Entity\Blog;
 use App\Form\BlogType;
 use App\Repository\BlogRepository;
+use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -16,12 +17,28 @@ use Symfony\Component\Routing\Annotation\Route;
 class BlogController extends AbstractController
 {
     /**
-     * @Route("/", name="blog_index", methods={"GET"})
+     * @var PaginatorInterface
      */
-    public function index(BlogRepository $blogRepository): Response
+    private $pagination;
+
+    public function __construct(PaginatorInterface $pagination)
+    {
+        $this->pagination = $pagination;
+    }
+
+    /**
+     * @Route("/", name="blog_index", methods={"GET"})
+     * @param  BlogRepository  $blogRepository
+     * @return Response
+     */
+    public function index(Request $request, BlogRepository $blogRepository): Response
     {
         return $this->render('blog/index.html.twig', [
-            'blogs' => $blogRepository->findAll(),
+            'blogs' => $this->pagination->paginate(
+                $blogRepository->getAllQuery(),
+                $request->query->get('page', 1),
+                12
+            ),
         ]);
     }
 
@@ -36,6 +53,11 @@ class BlogController extends AbstractController
 
         if ($form->isSubmitted() && $form->isValid()) {
             $entityManager = $this->getDoctrine()->getManager();
+
+            $blog->setUser(
+                $this->getUser()
+            );
+
             $entityManager->persist($blog);
             $entityManager->flush();
 
