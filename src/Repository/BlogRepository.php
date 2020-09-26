@@ -22,6 +22,7 @@ class BlogRepository extends ServiceEntityRepository
     public function getAllQuery()
     {
         return $this->createQueryBuilder('b')
+            ->orderBy('b.id', 'DESC')
             ->getQuery();
     }
 

@@ -3,43 +3,57 @@
 {% block title %}Blog index{% endblock %}
 
 {% block body %}
-    <h1>Blog index</h1>
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12">
+                <h1>Blog index</h1>
 
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Id</th>
-                <th>Title</th>
-                <th>Description</th>
-                <th>Created_at</th>
-                <th>Creator</th>
-                <th>actions</th>
-            </tr>
-        </thead>
-        <tbody>
-        {% for blog in blogs %}
-            <tr>
-                <td>{{ blog.id }}</td>
-                <td>{{ blog.title }}</td>
-                <td>{{ blog.description }}</td>
-                <td>{{ blog.createdAt ? blog.createdAt|date('Y-m-d H:i:s') : '' }}</td>
-                <td>{{ blog.user.email }}</td>
-                <td>
-                    <a href="{{ path('blog_show', {'id': blog.id}) }}">show</a>
-                    <a href="{{ path('blog_edit', {'id': blog.id}) }}">edit</a>
-                </td>
-            </tr>
-        {% else %}
-            <tr>
-                <td colspan="6">no records found</td>
-            </tr>
-        {% endfor %}
-        </tbody>
-    </table>
+                <a href="{{ path('blog_new') }}" class="btn btn-success">Create new</a>
 
-    <div class="col-md-12">
-        {{ knp_pagination_render(blogs) }}
+                <table class="table">
+                    <thead>
+                    <tr>
+                        <th>Id</th>
+                        <th>Title</th>
+                        <th>Description</th>
+                        <th>Created_at</th>
+                        <th>Creator</th>
+                        <th>actions</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for blog in blogs %}
+                        <tr>
+                            <td>{{ blog.id }}</td>
+                            <td>{{ blog.title }}</td>
+                            <td>
+                                {{ blog.description }}
+
+                                <br/>
+
+                                {% for tag in blog.tags %}
+                                    <a href="{{ path('blog_index', {'tag': tag.id}) }}">#{{ tag.title }}</a>
+                                {% endfor %}
+                            </td>
+                            <td>{{ blog.createdAt ? blog.createdAt|date('Y-m-d H:i:s') : '' }}</td>
+                            <td>{{ blog.user.email }}</td>
+                            <td>
+                                <a href="{{ path('blog_show', {'id': blog.id}) }}">show</a>
+                                <a href="{{ path('blog_edit', {'id': blog.id}) }}">edit</a>
+                            </td>
+                        </tr>
+                    {% else %}
+                        <tr>
+                            <td colspan="6">no records found</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+
+                <div class="col-md-12">
+                    {{ knp_pagination_render(blogs) }}
+                </div>
+            </div>
+        </div>
     </div>
-
-    <a href="{{ path('blog_new') }}">Create new</a>
 {% endblock %}

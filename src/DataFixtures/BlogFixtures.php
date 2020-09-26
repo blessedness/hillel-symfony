@@ -3,6 +3,7 @@
 namespace App\DataFixtures;
 
 use App\Entity\Blog;
+use App\Entity\Tag;
 use App\Entity\User;
 use App\Repository\UserRepository;
 use Doctrine\Bundle\FixturesBundle\Fixture;
@@ -42,6 +43,12 @@ class BlogFixtures extends Fixture implements DependentFixtureInterface
             );
 
             $blog->setUser($user);
+
+            for ($j = 0; $j <= rand(1, 5); $j++) {
+                $tag = new Tag($faker->word);
+
+                $blog->addTag($tag);
+            }
 
             $manager->persist($blog);
         }

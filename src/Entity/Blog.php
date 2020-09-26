@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use App\Repository\BlogRepository;
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 
@@ -37,6 +38,12 @@ class Blog
     private $user;
 
     /**
+     * @var ArrayCollection|Tag[]
+     * @ORM\ManyToMany(targetEntity="App\Entity\Tag", inversedBy="blogs", cascade={"persist"})
+     */
+    private $tags;
+
+    /**
      * @ORM\Column(type="datetime", nullable=false)
      */
     private $created_at;
@@ -48,6 +55,7 @@ class Blog
 
     public function __construct()
     {
+        $this->tags = new ArrayCollection();
         $this->created_at = new \DateTimeImmutable();
         $this->updated_at = new \DateTimeImmutable();
     }
@@ -135,5 +143,28 @@ class Blog
     public function setUser(User $user): void
     {
         $this->user = $user;
+    }
+
+    public function getTags()
+    {
+        return $this->tags;
+    }
+
+    public function addTag(Tag $tag)
+    {
+        if (!$this->tags->contains($tag)) {
+            $this->tags[] = $tag;
+        }
+
+        return $this;
+    }
+
+    public function removeTag(Tag $tag)
+    {
+        if ($this->tags->contains($tag)) {
+            $this->tags->removeElement($tag);
+        }
+
+        return $this;
     }
 }

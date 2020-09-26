@@ -2,9 +2,12 @@
 
 namespace App\Controller;
 
+use App\Commands\BlogCreate;
 use App\Entity\Blog;
 use App\Form\BlogType;
 use App\Repository\BlogRepository;
+use App\Services\BlogService;
+use Doctrine\Common\Collections\ArrayCollection;
 use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -20,10 +23,15 @@ class BlogController extends AbstractController
      * @var PaginatorInterface
      */
     private $pagination;
+    /**
+     * @var BlogService
+     */
+    private $service;
 
-    public function __construct(PaginatorInterface $pagination)
+    public function __construct(PaginatorInterface $pagination, BlogService $service)
     {
         $this->pagination = $pagination;
+        $this->service = $service;
     }
 
     /**
@@ -33,6 +41,8 @@ class BlogController extends AbstractController
      */
     public function index(Request $request, BlogRepository $blogRepository): Response
     {
+        $blogs = $blogRepository->getAllQuery()->getResult();
+
         return $this->render('blog/index.html.twig', [
             'blogs' => $this->pagination->paginate(
                 $blogRepository->getAllQuery(),
@@ -47,25 +57,20 @@ class BlogController extends AbstractController
      */
     public function new(Request $request): Response
     {
-        $blog = new Blog();
-        $form = $this->createForm(BlogType::class, $blog);
+        $command = new BlogCreate();
+        $form = $this->createForm(BlogType::class, $command);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $entityManager = $this->getDoctrine()->getManager();
+            $command->user = $this->getUser();
 
-            $blog->setUser(
-                $this->getUser()
-            );
-
-            $entityManager->persist($blog);
-            $entityManager->flush();
+            $this->service->create($command);
 
             return $this->redirectToRoute('blog_index');
         }
 
         return $this->render('blog/new.html.twig', [
-            'blog' => $blog,
+            'blog' => $command,
             'form' => $form->createView(),
         ]);
     }
@@ -85,11 +90,13 @@ class BlogController extends AbstractController
      */
     public function edit(Request $request, Blog $blog): Response
     {
-        $form = $this->createForm(BlogType::class, $blog);
+        $command = new BlogCreate($blog->getTitle(), $blog->getDescription());
+
+        $form = $this->createForm(BlogType::class, $command);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $this->getDoctrine()->getManager()->flush();
+            $this->service->update($blog, $command);
 
             return $this->redirectToRoute('blog_index');
         }
