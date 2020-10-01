@@ -1,0 +1,10 @@
+<h1>Hi, Admin, some person read your post.</h1>
+
+<p>
+    <b>title:</b> {{ blog.title }}
+</p>
+
+<p>
+    <b>Link:</b>
+    <a href="{{  url('blog_show', {id: blog.id}) }}" class="btn btn-info">Click</a>
+</p>

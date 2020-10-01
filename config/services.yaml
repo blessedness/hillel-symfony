@@ -31,5 +31,9 @@ services:
         arguments:
             $em: '@doctrine.orm.default_entity_manager'
 
+    App\Events\BlogListener:
+        tags:
+            - { name: kernel.event_listener, event: blog.view }
+
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones

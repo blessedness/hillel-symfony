@@ -8,7 +8,19 @@
             <div class="col-md-12">
                 <h1>Blog index</h1>
 
-                <a href="{{ path('blog_new') }}" class="btn btn-success">Create new</a>
+                <div class="row">
+                    <a href="{{ path('blog_new') }}" class="btn btn-success">Create new</a>
+                </div>
+
+                <hr/>
+
+                <div class="row">
+                    <form method="GET" action="{{ path('blog_index') }}">
+                        <input type="text" name="q" placeholder="Enter search text." value="{{ app.request.get('q') }}">
+                    </form>
+                </div>
+
+                <br/>
 
                 <table class="table">
                     <thead>

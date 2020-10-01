@@ -57,6 +57,8 @@
     </nav>
 
     <main class="py-4">
+        {% include 'partials/_flashes.thml.twig' %}
+
         {% block body %}{% endblock %}
     </main>
 </div>

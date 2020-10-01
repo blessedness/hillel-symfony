@@ -4,6 +4,7 @@ namespace App\Repository;
 
 use App\Entity\Blog;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -24,6 +25,40 @@ class BlogRepository extends ServiceEntityRepository
         return $this->createQueryBuilder('b')
             ->orderBy('b.id', 'DESC')
             ->getQuery();
+    }
+
+    public function getAllQueryBuilder()
+    {
+        return $this->createQueryBuilder('b')
+            ->orderBy('b.id', 'DESC');
+    }
+
+    public function querySearchForIndex(?string $q = null, ?int $tagId = null)
+    {
+        /** @var QueryBuilder $query */
+        $query = $this->getAllQueryBuilder()
+            ->innerJoin('b.user', 'user');
+
+        if ($q) {
+            $query
+                ->andWhere(
+                    $query->expr()->like("b.title", ":title")
+                )
+                ->setParameter(':title', '%'.mb_strtolower($q).'%')
+                ->orWhere(
+                    $query->expr()->like("b.description", ":description")
+                )
+                ->setParameter(':description', '%'.mb_strtolower($q).'%');
+        }
+
+        if ($tagId) {
+            $query
+                ->innerJoin('b.tags', 'tags')
+                ->andWhere('tags.id = :tagId')
+                ->setParameter(':tagId', $tagId);
+        }
+
+        return $query;
     }
 
     /**

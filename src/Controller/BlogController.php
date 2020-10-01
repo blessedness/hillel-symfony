@@ -4,12 +4,13 @@ namespace App\Controller;
 
 use App\Commands\BlogCreate;
 use App\Entity\Blog;
+use App\Events\BlogViewEvent;
 use App\Form\BlogType;
 use App\Repository\BlogRepository;
 use App\Services\BlogService;
-use Doctrine\Common\Collections\ArrayCollection;
 use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -36,16 +37,18 @@ class BlogController extends AbstractController
 
     /**
      * @Route("/", name="blog_index", methods={"GET"})
+     * @param  Request  $request
      * @param  BlogRepository  $blogRepository
      * @return Response
      */
     public function index(Request $request, BlogRepository $blogRepository): Response
     {
-        $blogs = $blogRepository->getAllQuery()->getResult();
-
         return $this->render('blog/index.html.twig', [
             'blogs' => $this->pagination->paginate(
-                $blogRepository->getAllQuery(),
+                $blogRepository->querySearchForIndex(
+                    $request->get('q'),
+                    $request->request->has('tag') ? (int)$request->get('tag') : null
+                ),
                 $request->query->get('page', 1),
                 12
             ),
@@ -66,6 +69,8 @@ class BlogController extends AbstractController
 
             $this->service->create($command);
 
+            $this->addFlash('success', 'Blog page created.');
+
             return $this->redirectToRoute('blog_index');
         }
 
@@ -77,9 +82,16 @@ class BlogController extends AbstractController
 
     /**
      * @Route("/{id}", name="blog_show", methods={"GET"})
+     * @param  Blog  $blog
+     * @param  EventDispatcherInterface  $dispatcher
+     * @return Response
      */
-    public function show(Blog $blog): Response
+    public function show(Blog $blog, EventDispatcherInterface $dispatcher): Response
     {
+        $dispatcher->dispatch(
+            new BlogViewEvent($blog)
+        );
+
         return $this->render('blog/show.html.twig', [
             'blog' => $blog,
         ]);
