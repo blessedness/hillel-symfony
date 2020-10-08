@@ -3,22 +3,18 @@ version: '3'
 services:
 
     nginx:
-        build:
-            context: ./docker/dev/nginx
-        volumes:
-            - ./:/app
+        image: ${DOCKER_REGISTRY}/nginx:${IMAGE_TAG}
+        restart: always
         ports:
             - "8080:80"
         depends_on:
             - php-fpm
 
     php-fpm:
+        image: ${DOCKER_REGISTRY}/php-fpm:${IMAGE_TAG}
+        restart: always
         env_file:
             - docker-compose.env
-        build:
-            context: ./docker/dev/php
-        volumes:
-            - ./:/app
         depends_on:
             - mysql
 
@@ -33,17 +29,6 @@ services:
             - mysql:/var/lib/mysql
         ports:
             - "3306:3306"
-
-#    redis:
-#        image: redis:alpine
-#        ports:
-#          - 6379:6379
-
-#    node:
-#      image: node:alpine
-#      volumes:
-#          - ./:/app
-#      tty: true
 
 volumes:
   mysql:
